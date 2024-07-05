@@ -20,6 +20,22 @@ if (isset($_GET['phone']) && isset($_GET['value'])) {
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;700&display=swap" rel="stylesheet">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 </head>
+<style>
+    #content {
+        overflow: auto;
+    }
+
+    #phone_number {
+        width: 200px;
+        height: 50px;
+    }
+
+    .form-phone {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+</style>
 
 <body>
     <div id="content">
@@ -34,8 +50,17 @@ if (isset($_GET['phone']) && isset($_GET['value'])) {
                 Nhấn nút Quay số để bắt đầu
             </h3>
             <h1 class="winner-name">
-                Chào mừng <?php echo $phone ?>. Bạn còn <?php echo  $value_random ?> lượt quay.
+                Chào mừng bạn đến với Mini game <br>
+
             </h1>
+            <div class="form-group form-phone">
+                <input type="number" name="" placeholder="Nhập SĐT" id="phone_number" class="form-control">
+                <button onclick="checkPhone()" class="btn btn-success">Kiểm tra</button>
+            </div>
+            <h2 class="text-white">
+                Bạn còn <span id="count">0</span> lượt quay.
+                <input type="hidden" name="" id="count_rand">
+            </h2>
 
         </div>
         <div id="main">
@@ -61,7 +86,7 @@ if (isset($_GET['phone']) && isset($_GET['value'])) {
                     </div>
                 </div>
             </div>
-            
+
             <div id="start" class="d-flex j-center">
                 <div onclick="start()" class="btn btn-yellow btn-yellow-secondary ng-binding">
                     Quay số
@@ -81,23 +106,30 @@ if (isset($_GET['phone']) && isset($_GET['value'])) {
         let run;
         let speed = 50;
         let timesRun = 0;
-        let phone = "<?php echo $phone ?>";
+        let phone = "<?php // echo $phone 
+                        ?>";
 
         function start() {
+            const count = $("#count_rand").val();
+            if (count < 1) {
+                alert('Hết lượt quay');
+                return;
+            }
             document.getElementById('start').classList.toggle('hide');
             document.getElementById('stop').classList.toggle('hide');
             run = setInterval(rotate, speed);
         }
+
         function stop() {
             document.getElementById('start').classList.toggle('hide');
             document.getElementById('stop').classList.toggle('hide');
             clearInterval(run);
             timesRun = 0;
             sendNumbers();
-            
+
         }
 
-        let rotate = function () {
+        let rotate = function() {
             timesRun += 50;
             if (timesRun > 5000) {
                 stop();
@@ -108,7 +140,7 @@ if (isset($_GET['phone']) && isset($_GET['value'])) {
                 numbers[i].innerHTML = randDomNumber();
             }
         }
-       
+
         function randDomNumber() {
             return Math.floor(Math.random() * 9) + 1;
         }
@@ -128,22 +160,53 @@ if (isset($_GET['phone']) && isset($_GET['value'])) {
                 url: 'main.php',
                 type: 'POST',
                 contentType: 'application/json',
-                data: JSON.stringify({ numbers: dataToSend, phone: phone  }),
+                data: JSON.stringify({
+                    numbers: dataToSend,
+                    phone: phone
+                }),
                 success: function(data) {
                     if (data.result) {
                         let resultMessage = data.message;
-                        alert(resultMessage); 
-                    } 
+                        alert(resultMessage);
+                    }
                 },
                 error: function(xhr, status, error) {
-                    alert("Lỗi"); 
+                    alert("Lỗi");
                 }
             });
 
         }
+
+        function checkPhone() {
+            const phone = $("#phone_number").val() ?? '';
+            if (phone == '') {
+                return;
+            }
+            $.ajax({
+                url: '/check_phone.php',
+                data: {
+                    phone: phone
+                },
+                success: function(data) {
+                    const res = JSON.parse(data);
+                    if(res.quanlity!=null){
+                        alert('Bạn có '+ res.quanlity+'lượt quay')
+                        $("#count").html(res.quanlity);
+                        $("#count_rand").val(res.quanlity);
+                    }else{
+                        $("#count").html('0');
+                        $("#count_rand").val('0');
+                        alert('Hết lượt quay')
+                    }
+                },
+                error: function(xhr, status, error) {
+                    alert("Lỗi");
+                }
+            });
+        }
     </script>
 
-   
+
 </body>
 
 </html>
