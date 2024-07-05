@@ -125,6 +125,9 @@ if (isset($_GET['phone']) && isset($_GET['value'])) {
             document.getElementById('stop').classList.toggle('hide');
             clearInterval(run);
             timesRun = 0;
+            const quanlity = parseInt($("#count_rand").val());
+            $("#count_rand").val(quanlity-1);
+
             sendNumbers();
 
         }
@@ -190,7 +193,7 @@ if (isset($_GET['phone']) && isset($_GET['value'])) {
                 success: function(data) {
                     const res = JSON.parse(data);
                     if(res.quanlity!=null){
-                        alert('Bạn có '+ res.quanlity+'lượt quay')
+                        alert('Bạn có '+ res.quanlity+' lượt quay')
                         $("#count").html(res.quanlity);
                         $("#count_rand").val(res.quanlity);
                     }else{
